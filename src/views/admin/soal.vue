@@ -1,0 +1,262 @@
+<template>
+  <v-container>
+    <v-row>
+      <v-col cols="12" class="py-0">
+        <h1 class="font-weight-light mb-0">Tabel Data Soal</h1>
+      </v-col>
+      <v-col cols="12">
+        <Table
+          @tambah="tambah"
+          @edit="edit"
+          @hapus="showDialogHapus"
+          :headers="headers"
+          :items="items"
+          itemKey="no"
+          sortBy="no"
+          :loading="loading"
+          :dialogDelete="dialogDelete"
+          expanded
+        >
+          <template v-slot:modal>
+            <v-dialog
+              v-model="dialog"
+              persistent
+              fullscreen
+              hide-overlay
+              transition="dialog-bottom-transition"
+            >
+              <v-card>
+                <v-toolbar dark color="primary">
+                  <v-btn icon dark @click.stop="closeDialog">
+                    <v-icon>mdi-close</v-icon>
+                  </v-btn>
+                  <v-toolbar-title>{{ formTitle }}</v-toolbar-title>
+                  <v-spacer></v-spacer>
+                  <v-toolbar-items>
+                    <v-btn dark text @click="simpan"> Simpan </v-btn>
+                  </v-toolbar-items>
+                </v-toolbar>
+
+                <v-card-text>
+                  <v-form ref="form" v-model="valid" lazy-validation>
+                    <v-row>
+                      <v-col cols="12" sm="2" md="2">
+                        <v-text-field
+                          v-model="editedItem.no"
+                          type="number"
+                          label="No*"
+                          :rules="numberRules"
+                          required
+                        ></v-text-field>
+                      </v-col>
+                      <v-col cols="12" sm="10" md="10">
+                        <v-textarea
+                          v-model="editedItem.pertanyaan"
+                          label="Pertanyaan"
+                          :rules="[
+                            (v) => !!v || 'Pertanyaan tidak boleh kosong',
+                          ]"
+                        ></v-textarea>
+                      </v-col>
+                    </v-row>
+                    <v-row v-for="item in formJawaban" :key="item.val">
+                      <v-col cols="1">
+                        <v-radio-group
+                          v-model="editedItem.benar"
+                          :rules="[(v) => !!v || '']"
+                          column
+                        >
+                          <v-radio color="primary" :value="item.val"></v-radio>
+                        </v-radio-group>
+                      </v-col>
+                      <v-col cols="11">
+                        <v-text-field
+                          v-model="$data['editedItem'].jawaban[item.val]"
+                          :label="item.label"
+                          :rules="[(v) => !!v || 'Jawaban tidak boleh kosong']"
+                          required
+                        ></v-text-field>
+                      </v-col>
+                    </v-row>
+                  </v-form>
+                </v-card-text>
+              </v-card>
+            </v-dialog>
+
+            <v-dialog v-model="dialogDelete" max-width="500px" persistent>
+              <v-card>
+                <v-card-title>
+                  <v-spacer></v-spacer>
+                  <v-icon x-large color="warning">mdi-alert</v-icon>
+                  <v-spacer></v-spacer>
+                </v-card-title>
+                <v-card-text class="headline">
+                  Anda yakin untuk menghapus data ini?
+                </v-card-text>
+                <v-card-actions>
+                  <v-spacer></v-spacer>
+                  <v-btn
+                    color="blue darken-1"
+                    outlined
+                    text
+                    @click="closeDialog"
+                  >
+                    Cancel
+                  </v-btn>
+                  <v-btn color="red darken-1" outlined text @click="hapus">
+                    OK
+                  </v-btn>
+                </v-card-actions>
+              </v-card>
+            </v-dialog>
+          </template>
+        </Table>
+
+        <v-snackbar
+          v-model="response.show"
+          :timeout="2000"
+          color="blue darken-4"
+          absolute
+          centered
+        >
+          {{ response.text }}
+        </v-snackbar>
+      </v-col>
+    </v-row>
+  </v-container>
+</template>
+
+<script>
+import { mapState, mapActions } from "vuex";
+import Table from "@/components/table.vue";
+
+export default {
+  components: {
+    Table,
+  },
+  data() {
+    return {
+      loading: true,
+      headers: [
+        {
+          text: "Nomor",
+          align: "start",
+          sortable: true,
+          value: "no",
+        },
+        { text: "Pertanyaan", value: "pertanyaan" },
+        {
+          text: "Jawaban",
+          value: "benar",
+        },
+        { text: "Aksi", value: "aksi", sortable: false },
+      ],
+      sortBy: "pertanyaan",
+      dialog: false,
+      dialogDelete: false,
+      editedIndex: -1,
+      editedItem: { jawaban: { A: "", B: "", C: "", D: "" } },
+      defaultItem: { jawaban: { A: "", B: "", C: "", D: "" } },
+      formJawaban: [
+        { val: "A", label: "Jawaban A*" },
+        { val: "B", label: "Jawaban B*" },
+        { val: "C", label: "Jawaban C*" },
+        { val: "D", label: "Jawaban D*" },
+      ],
+      valid: true,
+      response: { show: false, text: "" },
+    };
+  },
+  async created() {
+    await this.getAll();
+    this.loading = false;
+  },
+  computed: {
+    ...mapState({
+      items: (state) => state.soalModule.soals,
+    }),
+    formTitle() {
+      return this.editedIndex === -1 ? "Tambah Data Soal" : "Edit Data Soal";
+    },
+    numberRules() {
+      return [
+        (v) => !!v || "Nomor tidak boleh kosong",
+        (v) => {
+          return (
+            (this.editedIndex != -1 && this.items[this.editedIndex].no == v) ||
+            !this.items.find((item) => item.no == v) ||
+            "Nomor telah digunakan"
+          );
+        },
+      ];
+    },
+  },
+  methods: {
+    ...mapActions("soalModule", [
+      "getAll",
+      "addSoal",
+      "editSoal",
+      "deleteSoal",
+    ]),
+    tambah() {
+      this.editedItem = JSON.parse(JSON.stringify(this.defaultItem));
+      this.dialog = true;
+
+      this.$nextTick(() => {
+        this.$refs.form.reset();
+      });
+    },
+    edit(item) {
+      this.editedIndex = this.items.indexOf(item);
+      this.editedItem = Object.assign({}, item);
+
+      this.dialog = true;
+    },
+    showDialogHapus(item) {
+      this.editedIndex = this.items.indexOf(item);
+      this.editedItem = Object.assign({}, item);
+
+      console.log(this.editedItem);
+      this.dialogDelete = true;
+    },
+    async hapus() {
+      const res = await this.deleteSoal({
+        index: this.editedIndex,
+        id: this.editedItem._id,
+      });
+
+      this.response = { show: true, text: res.data.message };
+
+      this.closeDialog();
+    },
+    async simpan() {
+      await this.$refs.form.validate();
+
+      if (!this.valid) return;
+
+      let res;
+      if (this.editedIndex > -1) {
+        res = await this.editSoal({
+          index: this.editedIndex,
+          soal: { ...this.editedItem },
+        });
+      } else {
+        res = await this.addSoal({ ...this.editedItem });
+      }
+
+      this.response = { show: true, text: res.data.message };
+
+      this.closeDialog();
+    },
+    closeDialog() {
+      this.dialog = false;
+      this.dialogDelete = false;
+
+      this.$nextTick(() => {
+        this.editedItem = JSON.parse(JSON.stringify(this.defaultItem));
+        this.editedIndex = -1;
+      });
+    },
+  },
+};
+</script>

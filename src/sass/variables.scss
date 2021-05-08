@@ -1,0 +1,9 @@
+// Globals
+@font-face {
+  font-family: "poppins";
+  src: url("~@/assets/Poppins.ttf") format("truetype");
+}
+
+$body-font-family: "poppins", serif;
+$border-radius-root: 6px;
+$font-size-root: 14px;
