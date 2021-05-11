@@ -242,8 +242,8 @@ export default {
 
         setTimeout(() => {
           this.$store.commit("userModule/isLogin", true);
-          this.$router.push("home");
-        }, 1500);
+          this.$router.push(user.role);
+        }, 2000);
       }, 800);
     },
     back() {

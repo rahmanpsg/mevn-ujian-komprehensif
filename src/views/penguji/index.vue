@@ -14,7 +14,9 @@
       <v-list>
         <v-list-item link>
           <v-list-item-content>
-            <v-list-item-title class="title"> {{ nama }} </v-list-item-title>
+            <v-list-item-title class="title text-uppercase">
+              {{ nama }}
+            </v-list-item-title>
           </v-list-item-content>
         </v-list-item>
       </v-list>
@@ -68,13 +70,12 @@ export default {
       drawer: true,
       selectedItem: 0,
       items: [
-        { text: "Dashboard", href: "/penguji/", icon: "mdi-home" },
-        { text: "Data Soal", href: "/penguji/soal", icon: "mdi-book" },
         {
           text: "Hasil Ujian",
-          href: "/penguji/hasil",
+          href: "/penguji/",
           icon: "mdi-checkbox-multiple-marked",
         },
+        { text: "Data Soal", href: "/penguji/soal", icon: "mdi-book" },
       ],
     };
   },

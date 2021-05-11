@@ -5,12 +5,18 @@ import store from '@/store'
 Vue.use(VueRouter)
 
 const isLogin = (to, from, next) => {
+  const { login, role } = store.state.userModule
+
   if (to.name == 'Login') {
-    if (store.state.userModule.login)
-      next('home')
+    if (login)
+      next(role)
   } else {
-    if (!store.state.userModule.login)
+    if (!login)
       next('/')
+
+    if (to.name.toLowerCase() != role) {
+      next(role)
+    }
   }
 
   next()
@@ -21,11 +27,6 @@ const routes = [
     path: '/',
     name: 'Login',
     component: () => import('../views/Login.vue'),
-    beforeEnter: isLogin
-  }, {
-    path: '/home',
-    name: 'Home',
-    component: () => import('../views/Home.vue'),
     beforeEnter: isLogin
   }, {
     path: '/admin',
@@ -48,6 +49,10 @@ const routes = [
         path: 'penguji',
         name: 'adminPenguji',
         component: () => import("../views/admin/penguji.vue")
+      }, {
+        path: 'hasil',
+        name: 'adminHasil',
+        component: () => import("../views/admin/hasil.vue")
       }
     ]
   }, {
@@ -56,25 +61,31 @@ const routes = [
     beforeEnter: isLogin,
     children: [
       {
-        path: '',
-        name: 'Penguji',
-        component: () => import('../views/dashboard.vue')
+        path: '/',
+        name: 'penguji',
+        component: () => import('../views/penguji/hasil.vue')
       }, {
         path: 'soal',
         name: 'pengujiSoal',
         component: () => import('../views/penguji/soal.vue')
-      }, {
-        path: 'hasil',
-        name: 'pengujiHasil',
-        component: () => import('../views/penguji/hasil.vue')
       }
     ]
+  }, {
+    path: '/mahasiswa',
+    name: 'mahasiswa',
+    component: () => import('../views/mahasiswa/index.vue'),
+    beforeEnter: isLogin
+  }, {
+    path: '/:locale/*',
+    beforeEnter(to) {
+      window.location = `/`
+    }
   }
 ]
 
 
 const router = new VueRouter({
-  mode: 'history',
+  // mode: 'history',
   base: process.env.BASE_URL,
   routes
 })

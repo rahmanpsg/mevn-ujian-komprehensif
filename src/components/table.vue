@@ -100,7 +100,6 @@ export default {
     sortBy: String,
     loading: Boolean,
     expanded: Boolean,
-    dialogDelete: Boolean,
     btnImage: Boolean,
     getNamaPenguji: Function,
   },

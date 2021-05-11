@@ -9,6 +9,8 @@ import faceModule from './face'
 import soalModule from './soal'
 import mahasiswaModule from './mahasiswa'
 import pengujiModule from './penguji'
+import hasilModule from './hasil'
+import ujianModule from './ujian'
 
 Vue.use(Vuex)
 
@@ -18,10 +20,12 @@ export default new Vuex.Store({
     faceModule,
     soalModule,
     mahasiswaModule,
-    pengujiModule
+    pengujiModule,
+    hasilModule,
+    ujianModule
   },
   plugins: [createPersistedState({
-    paths: ['userModule'],
+    paths: ['userModule', 'ujianModule'],
     storage: {
       getItem: key => ls.get(key),
       setItem: (key, value) => ls.set(key, value),

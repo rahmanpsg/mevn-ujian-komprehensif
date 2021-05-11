@@ -18,7 +18,6 @@
         {{ totalMahasiswa.belum }}
       </v-chip></v-col
     >
-
     <CardMahasiswa
       :listMahasiswa="listMahasiswa"
       @setSelectedMahasiswa="setSelectedMahasiswa"
@@ -26,16 +25,9 @@
     <v-col cols="12" class="mt-n16">
       <v-divider></v-divider>
     </v-col>
-
-    <v-col
-      v-if="!listMahasiswa.length"
-      class="mx-auto text-center text-h6 overline"
+    <v-col v-show="!show" cols="12" class="mx-auto text-center overline"
+      >Silahkan pilih mahasiswa untuk melihat data</v-col
     >
-      <v-chip color="red" dark> Anda belum memiliki mahasiswa uji! </v-chip>
-    </v-col>
-    <v-col v-else v-show="!show" cols="12" class="mx-auto text-center overline">
-      Silahkan pilih mahasiswa untuk melihat data
-    </v-col>
     <Info
       v-show="show"
       :nama="selected.nama"
@@ -81,7 +73,7 @@ export default {
     defaultSelected: { hasil: {} },
   }),
   async created() {
-    await this.getAllByPenguji();
+    await this.getAll();
 
     // const a = Object.keys(this.listMahasiswa);
     // console.log(a);
@@ -105,7 +97,7 @@ export default {
     },
   },
   methods: {
-    ...mapActions("hasilModule", ["getAllByPenguji"]),
+    ...mapActions("hasilModule", ["getAll"]),
     setSelectedMahasiswa(item) {
       this.selected = Object.assign(
         JSON.parse(JSON.stringify(this.defaultSelected)),

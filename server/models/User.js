@@ -11,6 +11,10 @@ const schema = mongoose.Schema({
     penguji: {
         type: mongoose.Schema.Types.ObjectId,
         ref: "User"
+    },
+    hasil: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Hasil"
     }
 })
 

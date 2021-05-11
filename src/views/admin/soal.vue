@@ -14,125 +14,85 @@
           itemKey="no"
           sortBy="no"
           :loading="loading"
-          :dialogDelete="dialogDelete"
           expanded
         >
           <template v-slot:modal>
-            <v-dialog
-              v-model="dialog"
-              persistent
-              fullscreen
-              hide-overlay
-              transition="dialog-bottom-transition"
+            <DialogForm
+              :dialog="dialog"
+              :formTitle="formTitle"
+              @closeDialog="closeDialog"
+              @simpan="simpan"
             >
-              <v-card>
-                <v-toolbar dark color="primary">
-                  <v-btn icon dark @click.stop="closeDialog">
-                    <v-icon>mdi-close</v-icon>
-                  </v-btn>
-                  <v-toolbar-title>{{ formTitle }}</v-toolbar-title>
-                  <v-spacer></v-spacer>
-                  <v-toolbar-items>
-                    <v-btn dark text @click="simpan"> Simpan </v-btn>
-                  </v-toolbar-items>
-                </v-toolbar>
+              <template v-slot:form>
+                <v-form ref="form" v-model="valid" lazy-validation>
+                  <v-row>
+                    <v-col cols="12" sm="2" md="2">
+                      <v-text-field
+                        v-model="editedItem.no"
+                        type="number"
+                        label="No*"
+                        :rules="numberRules"
+                        required
+                      ></v-text-field>
+                    </v-col>
+                    <v-col cols="12" sm="10" md="10">
+                      <v-textarea
+                        v-model="editedItem.pertanyaan"
+                        label="Pertanyaan"
+                        :rules="[(v) => !!v || 'Pertanyaan tidak boleh kosong']"
+                      ></v-textarea>
+                    </v-col>
+                  </v-row>
+                  <v-row v-for="item in formJawaban" :key="item.val">
+                    <v-col cols="1">
+                      <v-radio-group
+                        v-model="editedItem.benar"
+                        :rules="[(v) => !!v || '']"
+                        column
+                      >
+                        <v-radio color="primary" :value="item.val"></v-radio>
+                      </v-radio-group>
+                    </v-col>
+                    <v-col cols="11">
+                      <v-text-field
+                        v-model="$data['editedItem'].jawaban[item.val]"
+                        :label="item.label"
+                        :rules="[(v) => !!v || 'Jawaban tidak boleh kosong']"
+                        required
+                      ></v-text-field>
+                    </v-col>
+                  </v-row>
+                </v-form>
+              </template>
+            </DialogForm>
 
-                <v-card-text>
-                  <v-form ref="form" v-model="valid" lazy-validation>
-                    <v-row>
-                      <v-col cols="12" sm="2" md="2">
-                        <v-text-field
-                          v-model="editedItem.no"
-                          type="number"
-                          label="No*"
-                          :rules="numberRules"
-                          required
-                        ></v-text-field>
-                      </v-col>
-                      <v-col cols="12" sm="10" md="10">
-                        <v-textarea
-                          v-model="editedItem.pertanyaan"
-                          label="Pertanyaan"
-                          :rules="[
-                            (v) => !!v || 'Pertanyaan tidak boleh kosong',
-                          ]"
-                        ></v-textarea>
-                      </v-col>
-                    </v-row>
-                    <v-row v-for="item in formJawaban" :key="item.val">
-                      <v-col cols="1">
-                        <v-radio-group
-                          v-model="editedItem.benar"
-                          :rules="[(v) => !!v || '']"
-                          column
-                        >
-                          <v-radio color="primary" :value="item.val"></v-radio>
-                        </v-radio-group>
-                      </v-col>
-                      <v-col cols="11">
-                        <v-text-field
-                          v-model="$data['editedItem'].jawaban[item.val]"
-                          :label="item.label"
-                          :rules="[(v) => !!v || 'Jawaban tidak boleh kosong']"
-                          required
-                        ></v-text-field>
-                      </v-col>
-                    </v-row>
-                  </v-form>
-                </v-card-text>
-              </v-card>
-            </v-dialog>
-
-            <v-dialog v-model="dialogDelete" max-width="500px" persistent>
-              <v-card>
-                <v-card-title>
-                  <v-spacer></v-spacer>
-                  <v-icon x-large color="warning">mdi-alert</v-icon>
-                  <v-spacer></v-spacer>
-                </v-card-title>
-                <v-card-text class="headline">
-                  Anda yakin untuk menghapus data ini?
-                </v-card-text>
-                <v-card-actions>
-                  <v-spacer></v-spacer>
-                  <v-btn
-                    color="blue darken-1"
-                    outlined
-                    text
-                    @click="closeDialog"
-                  >
-                    Cancel
-                  </v-btn>
-                  <v-btn color="red darken-1" outlined text @click="hapus">
-                    OK
-                  </v-btn>
-                </v-card-actions>
-              </v-card>
-            </v-dialog>
+            <DialogDelete
+              :dialogDelete="dialogDelete"
+              @hapus="hapus"
+              @closeDialog="closeDialog"
+            />
           </template>
         </Table>
 
-        <v-snackbar
-          v-model="response.show"
-          :timeout="2000"
-          color="blue darken-4"
-          absolute
-          centered
-        >
-          {{ response.text }}
-        </v-snackbar>
+        <SnackbarResponse :response="response" />
       </v-col>
     </v-row>
   </v-container>
 </template>
 
 <script>
-import { mapState, mapActions } from "vuex";
 import Table from "@/components/table.vue";
+import DialogForm from "@/components/dialogForm.vue";
+import DialogDelete from "@/components/dialogDelete.vue";
+import SnackbarResponse from "@/components/snackbarResponse.vue";
+import { mapState, mapActions } from "vuex";
 
 export default {
   components: {
     Table,
+    DialogForm,
+    DialogDelete,
+    SnackbarResponse,
   },
   data() {
     return {
@@ -216,7 +176,6 @@ export default {
       this.editedIndex = this.items.indexOf(item);
       this.editedItem = Object.assign({}, item);
 
-      console.log(this.editedItem);
       this.dialogDelete = true;
     },
     async hapus() {

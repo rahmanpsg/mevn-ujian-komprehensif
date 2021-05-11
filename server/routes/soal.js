@@ -13,7 +13,16 @@ router.get('/', async (req, res) => {
 router.get('/:penguji', async (req, res) => {
     const penguji = req.params.penguji
 
-    const soals = await Soal.find({ penguji }).sort('no')
+    const soals = await Soal.find({ penguji }).select('-penguji').sort('no')
+
+    res.send(soals)
+})
+
+// ambil semua data soal mahasiswa berdasarkan penguji
+router.get('/mahasiswa/:penguji', async (req, res) => {
+    const penguji = req.params.penguji
+
+    const soals = await Soal.find({ penguji }).select('-penguji -benar').sort('no')
 
     res.send(soals)
 })

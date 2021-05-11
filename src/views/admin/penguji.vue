@@ -17,166 +17,129 @@
           :dialogDelete="dialogDelete"
         >
           <template v-slot:modal>
-            <v-dialog
-              v-model="dialog"
-              persistent
-              fullscreen
-              hide-overlay
-              transition="dialog-bottom-transition"
+            <DialogForm
+              :dialog="dialog"
+              :formTitle="formTitle"
+              @closeDialog="closeDialog"
+              @simpan="simpan"
             >
-              <v-card>
-                <v-toolbar dark color="primary">
-                  <v-btn icon dark @click.stop="closeDialog">
-                    <v-icon>mdi-close</v-icon>
-                  </v-btn>
-                  <v-toolbar-title>{{ formTitle }}</v-toolbar-title>
-                  <v-spacer></v-spacer>
-                  <v-toolbar-items>
-                    <v-btn dark text @click="simpan"> Simpan </v-btn>
-                  </v-toolbar-items>
-                </v-toolbar>
-
-                <v-card-text>
-                  <v-form ref="form" v-model="valid" lazy-validation>
-                    <v-row>
-                      <v-col cols="12" sm="6" md="6">
-                        <v-text-field
-                          v-model="editedItem.nbm"
-                          type="number"
-                          label="Nbm*"
-                          :rules="nbmRules"
-                          required
-                        ></v-text-field>
-                      </v-col>
-                      <v-col cols="12" sm="6" md="6">
-                        <v-text-field
-                          v-model="editedItem.nama"
-                          label="Nama*"
-                          :rules="[(v) => !!v || 'Nama tidak boleh kosong']"
-                          required
-                        ></v-text-field>
-                      </v-col>
-                      <v-col cols="12" sm="6" md="6">
-                        <v-text-field
-                          v-model="editedItem.username"
-                          label="Username*"
-                          :rules="usernameRules"
-                          required
-                        ></v-text-field>
-                      </v-col>
-                      <v-col cols="12" sm="6" md="6">
-                        <v-text-field
-                          v-model="editedItem.password"
-                          type="password"
-                          label="Password*"
-                          :rules="[(v) => !!v || 'Password tidak boleh kosong']"
-                          required
-                        ></v-text-field>
-                      </v-col>
-                      <v-col cols="12" sm="2" md="2">
-                        <v-btn
-                          color="primary"
-                          :disabled="editedItem.images.length >= 3"
-                          @click="$refs.uploader.click()"
-                        >
-                          Tambah Image
-                          <v-icon right> mdi-plus </v-icon>
-                        </v-btn>
-                        <input
-                          ref="uploader"
-                          class="d-none"
-                          type="file"
-                          accept="image/*"
-                          multiple
-                          @change="onFileChanged"
-                        />
-                      </v-col>
-                      <v-col cols="12" sm="10" md="10">
-                        *Anda dapat menambahkan hingga 3 image untuk digunakan
-                        sebagai deteksi wajah.
-                        <br />
-                        Silahkan upload foto dengan wajah yang jelas.
-                      </v-col>
-                      <v-alert :value="alertImage" dense outlined type="error">
-                        Anda hanya dapat menambahkan maksimal
-                        <strong>3 foto</strong>
-                      </v-alert>
-                    </v-row>
-
-                    <v-row justify="space-around">
-                      <v-col
-                        cols="4"
-                        v-for="(image, i) in editedItem.images"
-                        :key="i"
+              <template v-slot:form>
+                <v-form ref="form" v-model="valid" lazy-validation>
+                  <v-row>
+                    <v-col cols="12" sm="6" md="6">
+                      <v-text-field
+                        v-model="editedItem.nbm"
+                        type="number"
+                        label="Nbm*"
+                        :rules="nbmRules"
+                        required
+                      ></v-text-field>
+                    </v-col>
+                    <v-col cols="12" sm="6" md="6">
+                      <v-text-field
+                        v-model="editedItem.nama"
+                        label="Nama*"
+                        :rules="[(v) => !!v || 'Nama tidak boleh kosong']"
+                        required
+                      ></v-text-field>
+                    </v-col>
+                    <v-col cols="12" sm="6" md="6">
+                      <v-text-field
+                        v-model="editedItem.username"
+                        label="Username*"
+                        :rules="usernameRules"
+                        required
+                      ></v-text-field>
+                    </v-col>
+                    <v-col cols="12" sm="6" md="6">
+                      <v-text-field
+                        v-model="editedItem.password"
+                        type="password"
+                        label="Password*"
+                        :rules="[(v) => !!v || 'Password tidak boleh kosong']"
+                        required
+                      ></v-text-field>
+                    </v-col>
+                    <v-col cols="12" sm="2" md="2">
+                      <v-btn
+                        color="primary"
+                        :disabled="editedItem.images.length >= 3"
+                        @click="$refs.uploader.click()"
                       >
-                        <div class="title mb-1">
-                          <v-btn
-                            small
-                            color="error"
-                            @click="editedItem.images.splice(i, 1)"
-                          >
-                            Hapus
-                            <v-icon right> mdi-delete </v-icon>
-                          </v-btn>
-                        </div>
-                        <v-img :src="image" aspect-ratio="1.1"></v-img>
-                      </v-col>
-                    </v-row>
-                  </v-form>
-                </v-card-text>
-              </v-card>
-            </v-dialog>
+                        Tambah Image
+                        <v-icon right> mdi-plus </v-icon>
+                      </v-btn>
+                      <input
+                        ref="uploader"
+                        class="d-none"
+                        type="file"
+                        accept="image/*"
+                        multiple
+                        @change="onFileChanged"
+                      />
+                    </v-col>
+                    <v-col cols="12" sm="10" md="10">
+                      *Anda dapat menambahkan hingga 3 image untuk digunakan
+                      sebagai deteksi wajah.
+                      <br />
+                      Silahkan upload foto dengan wajah yang jelas.
+                    </v-col>
+                    <v-alert :value="alertImage" dense outlined type="error">
+                      Anda hanya dapat menambahkan maksimal
+                      <strong>3 foto</strong>
+                    </v-alert>
+                  </v-row>
 
-            <v-dialog v-model="dialogDelete" max-width="500px" persistent>
-              <v-card>
-                <v-card-title>
-                  <v-spacer></v-spacer>
-                  <v-icon x-large color="warning">mdi-alert</v-icon>
-                  <v-spacer></v-spacer>
-                </v-card-title>
-                <v-card-text class="headline">
-                  Anda yakin untuk menghapus data ini?
-                </v-card-text>
-                <v-card-actions>
-                  <v-spacer></v-spacer>
-                  <v-btn
-                    color="blue darken-1"
-                    outlined
-                    text
-                    @click="closeDialog"
-                  >
-                    Cancel
-                  </v-btn>
-                  <v-btn color="red darken-1" outlined text @click="hapus">
-                    OK
-                  </v-btn>
-                </v-card-actions>
-              </v-card>
-            </v-dialog>
+                  <v-row justify="space-around">
+                    <v-col
+                      cols="4"
+                      v-for="(image, i) in editedItem.images"
+                      :key="i"
+                    >
+                      <div class="title mb-1">
+                        <v-btn
+                          small
+                          color="error"
+                          @click="editedItem.images.splice(i, 1)"
+                        >
+                          Hapus
+                          <v-icon right> mdi-delete </v-icon>
+                        </v-btn>
+                      </div>
+                      <v-img :src="image" aspect-ratio="1.1"></v-img>
+                    </v-col>
+                  </v-row>
+                </v-form>
+              </template>
+            </DialogForm>
+
+            <DialogDelete
+              :dialogDelete="dialogDelete"
+              @hapus="hapus"
+              @closeDialog="closeDialog"
+            />
           </template>
         </Table>
 
-        <v-snackbar
-          v-model="response.show"
-          :timeout="2000"
-          color="blue darken-4"
-          absolute
-          centered
-        >
-          {{ response.text }}
-        </v-snackbar>
+        <SnackbarResponse :response="response" />
       </v-col>
     </v-row>
   </v-container>
 </template>
 
 <script>
-import { mapState, mapActions } from "vuex";
 import Table from "@/components/table.vue";
+import DialogForm from "@/components/dialogForm.vue";
+import DialogDelete from "@/components/dialogDelete.vue";
+import SnackbarResponse from "@/components/snackbarResponse.vue";
+import { mapState, mapActions } from "vuex";
 
 export default {
   components: {
     Table,
+    DialogForm,
+    DialogDelete,
+    SnackbarResponse,
   },
   data() {
     return {

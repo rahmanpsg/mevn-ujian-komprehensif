@@ -9,6 +9,8 @@ export default {
         nama: '',
         nim: '', //optional jika mahasiswa
         nbm: '', //optional jika penguji
+        penguji: '', //optional jika mahasiswa
+        image: '',
         role: ''
     }),
     mutations: {
@@ -21,7 +23,10 @@ export default {
             state.nama = data.nama
             state.nim = data.nim
             state.nbm = data.nbm
+            state.penguji = data.penguji
             state.role = data.role
+            if (data.role == 'admin') return
+            state.image = data.image || data.images[0]
         }
     },
     actions: {
