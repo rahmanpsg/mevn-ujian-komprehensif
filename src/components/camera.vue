@@ -28,6 +28,10 @@
       >
         <span v-html="alertDetection.text"></span>
       </v-alert>
+      <v-progress-linear
+        :active="progress.active"
+        :value="progress.value"
+      ></v-progress-linear>
 
       <v-row
         v-if="showLoading"
@@ -84,7 +88,7 @@ export default {
         type: "warning",
         text: "Tidak ada wajah yang terdeteksi",
       },
-      detect: false,
+      totalDetection: 0,
     };
   },
   created() {
@@ -99,7 +103,7 @@ export default {
       try {
         await this.loadFaceDetectModels();
 
-        this.loadingText = "Loading data...";
+        this.loadingText = "Loading Data...";
         this.$store.commit("faceModule/loading");
 
         console.time("loading data");
@@ -107,6 +111,7 @@ export default {
         await this.getFaceMatcher();
         console.timeEnd("loading data");
       } catch (error) {
+        console.log(error);
         this.$store.commit("faceModule/loading", false);
         this.alertDetection = {
           show: true,
@@ -138,6 +143,12 @@ export default {
         default:
           return "450px";
       }
+    },
+    progress() {
+      return {
+        active: this.alertDetection.type === "info",
+        value: (this.totalDetection / 5) * 100,
+      };
     },
   },
   methods: {
@@ -222,7 +233,7 @@ export default {
 
       this.alertDetection.show = true;
 
-      let totalDetection = 0;
+      this.totalDetection = 0;
       let currentDetection = null;
 
       this.detectionInterval = setInterval(async () => {
@@ -241,37 +252,31 @@ export default {
 
         if (bestMatch.label == "unknown") {
           this.alertDetection.text = "Wajah tidak terdaftar";
-          return;
-        }
-
-        if (this.detect) {
-          clearInterval(this.detectionInterval);
+          this.totalDetection = 0;
           return;
         }
 
         const user = this.$store.state.faceModule.faces[bestMatch.label];
 
-        console.log(currentDetection, user._id);
-        console.log(totalDetection);
-
         if (currentDetection == user._id) {
-          totalDetection++;
+          this.totalDetection++;
         } else {
-          totalDetection = 0;
+          this.totalDetection = 0;
         }
 
         currentDetection = user._id;
 
+        this.alertDetection.type = "info";
         this.alertDetection.text = "Sedang mengenali wajah...";
 
-        if (totalDetection < 5) return;
+        if (this.totalDetection < 5) return;
 
+        clearInterval(this.detectionInterval);
         this.alertDetection.type = "success";
         this.alertDetection.text = `Wajah berhasil dideteksi. <br/> Anda berhasil login sebagai ${user.nama}`;
 
         this.$store.commit("userModule/setData", user);
         this.$emit("setLoading", true);
-        this.detect = true;
 
         setTimeout(() => {
           this.$store.commit("userModule/isLogin", true);

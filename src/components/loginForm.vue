@@ -97,7 +97,6 @@ export default {
 
       setTimeout(() => {
         this.$store.commit("userModule/isLogin", true);
-        // this.$router.push("admin");
         this.$router.push(res.data.user.role);
       }, 1000);
     },

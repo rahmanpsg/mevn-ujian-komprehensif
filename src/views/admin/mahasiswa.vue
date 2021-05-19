@@ -234,7 +234,9 @@ export default {
     getNamaPenguji(penguji) {
       if (!penguji || !this.listPenguji.length) return "-";
 
-      return this.listPenguji.find((v) => v._id == penguji).nama;
+      const findPenguji = this.listPenguji.find((v) => v._id == penguji);
+
+      return findPenguji ? findPenguji.nama : "-";
     },
     onFileChanged(e) {
       const files = e.target.files;

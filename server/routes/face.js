@@ -4,7 +4,7 @@ const router = express.Router()
 
 // get all face
 router.get('/', async (req, res) => {
-    const users = await User.find({ role: ['mahasiswa', 'penguji'] }).select(['username', 'nim', 'nama', 'role', 'images'])
+    const users = await User.find({ role: ['mahasiswa', 'penguji'] })
 
     res.send(users)
 })
