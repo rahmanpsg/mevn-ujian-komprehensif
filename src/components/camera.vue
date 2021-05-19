@@ -51,7 +51,12 @@
     <v-card-text>
       <v-container>
         <v-row ref="container" align-content="center" justify="center">
-          <video ref="video" width="500" height="450" muted></video>
+          <video
+            ref="video"
+            :width="videoSize"
+            :height="videoSize"
+            muted
+          ></video>
         </v-row>
       </v-container>
     </v-card-text>
@@ -121,10 +126,20 @@ export default {
     if (!this.error) this.stop();
     clearInterval(this.detectionInterval);
   },
-  computed: mapState({
-    showLoading: (state) => state.faceModule.loading,
-    loaded: (state) => state.faceModule.load,
-  }),
+  computed: {
+    ...mapState({
+      showLoading: (state) => state.faceModule.loading,
+      loaded: (state) => state.faceModule.load,
+    }),
+    videoSize() {
+      switch (this.$vuetify.breakpoint.name) {
+        case "xs":
+          return "400px";
+        default:
+          return "450px";
+      }
+    },
+  },
   methods: {
     ...mapActions("faceModule", {
       loadFaceDetectModels: "load",
@@ -207,6 +222,9 @@ export default {
 
       this.alertDetection.show = true;
 
+      let totalDetection = 0;
+      let currentDetection = null;
+
       this.detectionInterval = setInterval(async () => {
         const singleResult = await this.getFaceDetections({ video });
 
@@ -233,6 +251,21 @@ export default {
 
         const user = this.$store.state.faceModule.faces[bestMatch.label];
 
+        console.log(currentDetection, user._id);
+        console.log(totalDetection);
+
+        if (currentDetection == user._id) {
+          totalDetection++;
+        } else {
+          totalDetection = 0;
+        }
+
+        currentDetection = user._id;
+
+        this.alertDetection.text = "Sedang mengenali wajah...";
+
+        if (totalDetection < 5) return;
+
         this.alertDetection.type = "success";
         this.alertDetection.text = `Wajah berhasil dideteksi. <br/> Anda berhasil login sebagai ${user.nama}`;
 
@@ -256,8 +289,7 @@ export default {
 <style lang="scss" scoped>
 video {
   width: 100%;
-  min-width: 450px;
-  height: 450px;
+  min-width: 300px;
   background-color: rgb(131, 128, 128);
 }
 </style>

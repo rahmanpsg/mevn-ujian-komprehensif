@@ -4,6 +4,12 @@ const cors = require('cors')
 const mongoose = require('mongoose')
 const chalk = require('chalk')
 
+const fs = require('fs');
+const https = require('https');
+const privateKey = fs.readFileSync('key.pem', 'utf8');
+const certificate = fs.readFileSync('cert.pem', 'utf8');
+const credentials = { key: privateKey, cert: certificate };
+
 const userModel = require('./models/User')
 const soalModel = require('./models/Soal')
 
@@ -49,13 +55,20 @@ mongoose
             res.status(200).send({ totalMahasiswa, totalPenguji, totalSoal })
         })
 
+        const ip = require('ip');
+
         app.listen(5000, () => {
-            const ip = require('ip');
 
             console.log('Aplikasi berjalan di:');
             console.log("- Local :", chalk.bgGreen("http://localhost:5000/"))
             console.log("- Network : ", chalk.bgGreen(`http://${ip.address()}:5000/`))
         })
+
+        const httpsServer = https.createServer(credentials, app);
+
+        httpsServer.listen(8000, () => {
+            console.log("- HTTPS : ", chalk.bgGreen(`https://${ip.address()}:8000/`))
+        });
     })
     .catch(err => {
         console.error("Connection error", err);

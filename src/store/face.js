@@ -9,9 +9,13 @@ export default {
         load: false,
         faceMatcher: null,
         options: new faceapi.SsdMobilenetv1Options({
-            minConfidence: 0.4,
-            maxResults: 1,
+            minConfidence: 0.8,
+            // maxResults: 100,
         })
+        // options: new faceapi.TinyFaceDetectorOptions({
+        //     inputSize: 160,
+        //     scoreThreshold: 0.5
+        // })
     }),
 
     mutations: {
@@ -42,6 +46,8 @@ export default {
                     faceapi.loadSsdMobilenetv1Model(MODEL_URL),
                     faceapi.loadFaceRecognitionModel(MODEL_URL),
                     faceapi.loadFaceLandmarkModel(MODEL_URL),
+                    // faceapi.loadTinyFaceDetectorModel(MODEL_URL),
+                    // faceapi.nets.faceLandmark68TinyNet.loadFromUri(MODEL_URL),
                 ])
                     .then(() => {
                         commit('load')
@@ -63,7 +69,7 @@ export default {
 
                     const descriptions = await Promise.all(images.map(async image => {
                         const img = await faceapi.fetchImage(image)
-                        const detections = await faceapi.detectSingleFace(img).withFaceLandmarks().withFaceDescriptor()
+                        const detections = await faceapi.detectSingleFace(img, state.options).withFaceLandmarks().withFaceDescriptor()
 
                         return detections.descriptor
                     }))
@@ -80,8 +86,7 @@ export default {
                 })
             );
 
-            const maxDescriptorDistance = 0.8
-            const matcher = new faceapi.FaceMatcher(labeledDescriptors, maxDescriptorDistance)
+            const matcher = new faceapi.FaceMatcher(labeledDescriptors)
             commit('setFaceMatcher', matcher)
             return matcher
         },
