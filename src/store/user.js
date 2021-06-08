@@ -18,15 +18,19 @@ export default {
             state.login = login
         },
         setData: (state, data) => {
-            state.id = data._id
-            state.username = data.username
-            state.nama = data.nama
-            state.nim = data.nim
-            state.nbm = data.nbm
-            state.penguji = data.penguji
-            state.role = data.role
-            if (data.role == 'admin') return
-            state.image = data.image || data.images[0]
+            try {
+                state.id = data._id
+                state.username = data.username
+                state.nama = data.nama
+                state.nim = data.nim
+                state.nbm = data.nbm
+                state.penguji = data.penguji
+                state.role = data.role
+                if (data.role == 'admin') return
+                state.image = data.image || data.images[0]
+            } catch (error) {
+                console.log(error);
+            }
         }
     },
     actions: {

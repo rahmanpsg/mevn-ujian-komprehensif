@@ -57,17 +57,11 @@ mongoose
 
         const ip = require('ip');
 
-        app.listen(5000, () => {
-
-            console.log('Aplikasi berjalan di:');
-            console.log("- Local :", chalk.bgGreen("http://localhost:5000/"))
-            console.log("- Network : ", chalk.bgGreen(`http://${ip.address()}:5000/`))
-        })
-
         const httpsServer = https.createServer(credentials, app);
 
-        httpsServer.listen(8000, () => {
-            console.log("- HTTPS : ", chalk.bgGreen(`https://${ip.address()}:8000/`))
+        httpsServer.listen(5000, () => {
+            console.log("- Local :", chalk.bgGreen("https://localhost:5000/"))
+            console.log("- Network : ", chalk.bgGreen(`https://${ip.address()}:5000/`))
         });
     })
     .catch(err => {

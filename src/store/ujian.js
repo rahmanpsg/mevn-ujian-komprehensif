@@ -7,6 +7,7 @@ export default {
         waktuMulai: null,
         jawabans: { 1: '' },
         jawaban: '',
+        jawab: {},
         soals: [],
         soalActive: 1
     }),
@@ -18,8 +19,9 @@ export default {
         setSoals: (state, soal) => {
             state.soals = soal
         },
-        setJawabans: (state, jawaban) => {
-            state.jawabans = { ...state.jawabans, [state.soalActive]: jawaban }
+        setJawabans: (state, { id, jawab }) => {
+            state.jawabans = { ...state.jawabans, [state.soalActive]: jawab }
+            state.jawab = { ...state.jawab, [id]: jawab }
         },
         setMulai: (state) => {
             state.mulai = true
@@ -47,8 +49,9 @@ export default {
                 return error.response
             }
         },
-        async getAll({ commit, rootState }) {
+        async getAll({ commit, state, rootState }) {
             try {
+                if (!!state.soals.length) return
                 const res = await axios.get(`soal/mahasiswa/${rootState.userModule.penguji}`)
                 commit('setSoals', res.data)
                 return res
@@ -61,7 +64,7 @@ export default {
                 const data = {
                     mahasiswa: rootState.userModule.id,
                     penguji: rootState.userModule.penguji,
-                    jawaban: state.jawabans,
+                    jawaban: state.jawab,
                     waktuMulai: state.waktuMulai,
                     waktuSelesai: new Date().getTime()
                 }

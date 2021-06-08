@@ -7,18 +7,23 @@
           <v-divider></v-divider>
         </v-col>
         <v-col cols="2" sm="1" md="1" xl="1">
-          <v-chip label color="primary" dark v-text="soal.no"></v-chip>
+          <v-chip
+            label
+            color="primary"
+            dark
+            v-text="soals.indexOf(soal) + 1"
+          ></v-chip>
         </v-col>
         <v-col cols="10" sm="11" md="11" xl="11">
           <span v-text="soal.pertanyaan"></span>
         </v-col>
         <v-col cols="12">
           <v-chip-group
-            :value="jawaban"
-            column
-            @change="setJawaban(i)"
             v-for="(item, i) in soal.jawaban"
             :key="i"
+            :value="jawaban"
+            column
+            @change="setJawaban({ id: soal._id, jawab: i })"
           >
             <v-col cols="2" xl="3">
               <v-chip
@@ -70,11 +75,11 @@
               label
               dark
               active-class="primary"
-              :color="getColorSoal(item.no)"
+              :color="getColorSoal(soals.indexOf(item) + 1)"
               class="text-overline justify-center"
               style="min-width: 41px"
-              :value="item.no"
-              v-text="item.no"
+              :value="soals.indexOf(item) + 1"
+              v-text="soals.indexOf(item) + 1"
             >
             </v-chip>
           </v-chip-group>

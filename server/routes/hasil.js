@@ -48,12 +48,12 @@ router.post('/', async (req, res) => {
     // periksa jawaban
     let benar = 0
     const hasilJawaban = soals.map(v => {
-        if (jawaban[v.no] == v.benar) {
+        if (jawaban[v._id] == v.benar) {
             benar++
         }
         return {
             soal: v._id,
-            jawab: jawaban[v.no]
+            jawab: jawaban[v._id]
         }
     })
 

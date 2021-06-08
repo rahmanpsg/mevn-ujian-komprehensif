@@ -24,7 +24,15 @@ router.get('/mahasiswa/:penguji', async (req, res) => {
 
     const soals = await Soal.find({ penguji }).select('-penguji -benar').sort('no')
 
-    res.send(soals)
+    const shuffle = (a) => {
+        for (let i = a.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [a[i], a[j]] = [a[j], a[i]];
+        }
+        return a;
+    }
+
+    res.send(shuffle(soals))
 })
 
 // tambah data soal
