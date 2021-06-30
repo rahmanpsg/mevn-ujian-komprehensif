@@ -1,28 +1,53 @@
 const express = require('express')
 const Soal = require('../models/Soal')
 const router = express.Router()
+const itemRouter = express.Router({ mergeParams: true });
 
 // ambil semua data soal
 router.get('/', async (req, res) => {
-    const soals = await Soal.find().sort('no')
+    const soals = await Soal.find().populate('matakuliah').sort('matakuliah')
 
     res.send(soals)
 })
 
-// ambil semua data soal berdasarkan penguji
-router.get('/:penguji', async (req, res) => {
-    const penguji = req.params.penguji
+// ambil semua data soal berdasarkan matakuliah
+router.get('/:matakuliah', async (req, res) => {
+    const matakuliah = req.params.matakuliah
 
-    const soals = await Soal.find({ penguji }).select('-penguji').sort('no')
+    const soals = await Soal.find({ matakuliah }).select('-matakuliah')
 
     res.send(soals)
 })
 
-// ambil semua data soal mahasiswa berdasarkan penguji
-router.get('/mahasiswa/:penguji', async (req, res) => {
-    const penguji = req.params.penguji
+router.use('/:mahasiswa/ujian', itemRouter);
 
-    const soals = await Soal.find({ penguji }).select('-penguji -benar').sort('no')
+// ambil data soal random untuk ujian
+itemRouter.get('/', async (req, res) => {
+    // const mahasiswa = req.params.mahasiswa
+
+    const soals = await Soal.find().select('-benar').populate('matakuliah')
+
+    // Total soal yang akan ditampilkan
+    const totalSoal = 50;
+
+    // const listTotalSoalMatakuliah = {};
+    const listSoalByMatakuliah = {}
+    soals.forEach(v => {
+        // group data soal by matakuliah
+        listSoalByMatakuliah[v.matakuliah.matakuliah] = listSoalByMatakuliah[v.matakuliah.matakuliah] ? [...listSoalByMatakuliah[v.matakuliah.matakuliah], v] : [v]
+    })
+
+    const newListSoal = []
+
+    // acak data soal per matakuliah
+    const maxSoalPerMatakuliah = 8;
+    for (const [mk, soal] of Object.entries(listSoalByMatakuliah)) {
+        for (let i = maxSoalPerMatakuliah * 2 - soal.length; i <= soal.length - 1; i++) {
+            listSoalByMatakuliah[mk].splice(Math.floor(Math.random() * soal.length), 1)
+        }
+
+        newListSoal.push(...listSoalByMatakuliah[mk])
+    }
 
     const shuffle = (a) => {
         for (let i = a.length - 1; i > 0; i--) {
@@ -32,19 +57,19 @@ router.get('/mahasiswa/:penguji', async (req, res) => {
         return a;
     }
 
-    res.send(shuffle(soals))
+    res.send(shuffle(newListSoal))
 })
 
 // tambah data soal
 router.post('/', async (req, res) => {
-    const { no, pertanyaan, jawaban, benar, penguji } = req.body
+    const { pertanyaan, jawaban, benar, matakuliah } = req.body
 
     const soal = new Soal({
-        no,
+
         pertanyaan,
         jawaban,
         benar,
-        penguji
+        matakuliah
     })
 
     soal.save((err, doc) => {
@@ -59,9 +84,9 @@ router.post('/', async (req, res) => {
 
 // ubah data soal
 router.put('/', async (req, res) => {
-    const { _id, no, pertanyaan, jawaban, benar, penguji } = req.body
+    const { _id, pertanyaan, jawaban, benar, matakuliah } = req.body
 
-    const newData = { no, pertanyaan, jawaban, benar, penguji }
+    const newData = { pertanyaan, jawaban, benar, matakuliah }
 
     Soal.findByIdAndUpdate(_id, newData, { useFindAndModify: false }, err => {
         if (err) return res.status(500).send({ message: err });

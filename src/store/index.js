@@ -8,7 +8,7 @@ import userModule from './user'
 import faceModule from './face'
 import soalModule from './soal'
 import mahasiswaModule from './mahasiswa'
-import pengujiModule from './penguji'
+import matakuliahModule from './matakuliah'
 import hasilModule from './hasil'
 import ujianModule from './ujian'
 
@@ -20,7 +20,7 @@ export default new Vuex.Store({
     faceModule,
     soalModule,
     mahasiswaModule,
-    pengujiModule,
+    matakuliahModule,
     hasilModule,
     ujianModule
   },

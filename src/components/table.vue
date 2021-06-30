@@ -18,13 +18,15 @@
       :headers="headers"
       :items="items"
       :item-key="itemKey"
-      :items-per-page="5"
+      :items-per-page="10"
       :search="search"
       :loading="loading"
+      :group-by="groupBy"
+      :show-group-by="groupBy != null"
       loading-text="Loading data..."
       :show-expand="expanded"
       :single-expand="true"
-      :sort-by.sync="sortBy"
+      :sort-by="sortBy"
       :getNamaPenguji="getNamaPenguji"
     >
       <template v-slot:[`item.index`]="{ index }">
@@ -33,6 +35,10 @@
 
       <template v-slot:[`item.penguji`]="{ item }">
         {{ getNamaPenguji(item.penguji) }}
+      </template>
+
+      <template v-slot:[`item.matakuliah.matakuliah`]="{ item }">
+        {{ getNamaMatakuliah(item.matakuliah) }}
       </template>
 
       <template v-slot:[`item.aksi`]="{ item }">
@@ -98,10 +104,12 @@ export default {
     items: Array,
     itemKey: String,
     sortBy: String,
+    groupBy: String,
     loading: Boolean,
     expanded: Boolean,
     btnImage: Boolean,
     getNamaPenguji: Function,
+    getNamaMatakuliah: Function,
   },
   data: () => ({
     search: "",

@@ -70,14 +70,19 @@ export default {
       items: [
         { text: "Dashboard", href: "/admin/", icon: "mdi-home" },
         {
-          text: "Data Penguji",
-          href: "/admin/penguji",
-          icon: "mdi-account-tie",
-        },
-        {
           text: "Data Mahasiswa",
           href: "/admin/mahasiswa",
           icon: "mdi-account-group",
+        },
+        {
+          text: "Data Matakuliah",
+          href: "/admin/matakuliah",
+          icon: "mdi-school",
+        },
+        {
+          text: "Data Soal",
+          href: "/admin/soal",
+          icon: "mdi-book",
         },
         // { text: "Data Soal", href: "/admin/soal", icon: "mdi-book" },
         {

@@ -11,7 +11,7 @@ router.get('/', async (req, res) => {
 
 // tambah data mahasiswa
 router.post('/', async (req, res) => {
-    const { nim, nama, username, password, images, penguji } = req.body
+    const { nim, nama, username, password, images } = req.body
 
     const mahasiswa = new User({
         nim,
@@ -19,7 +19,6 @@ router.post('/', async (req, res) => {
         username,
         password,
         images,
-        penguji,
         role: 'mahasiswa'
     })
 
@@ -35,9 +34,9 @@ router.post('/', async (req, res) => {
 
 // ubah data mahasiswa
 router.put('/', async (req, res) => {
-    const { _id, nim, nama, username, password, images, penguji } = req.body
+    const { _id, nim, nama, username, password, images } = req.body
 
-    const newData = { nim, nama, username, password, images, penguji }
+    const newData = { nim, nama, username, password, images }
 
     User.findByIdAndUpdate(_id, newData, { useFindAndModify: false }, err => {
         if (err) return res.status(500).send({ message: err });

@@ -52,7 +52,7 @@ export default {
         async getAll({ commit, state, rootState }) {
             try {
                 if (!!state.soals.length) return
-                const res = await axios.get(`soal/mahasiswa/${rootState.userModule.penguji}`)
+                const res = await axios.get(`soal/${rootState.userModule.nim}/ujian`)
                 commit('setSoals', res.data)
                 return res
             } catch (error) {
@@ -63,7 +63,6 @@ export default {
             try {
                 const data = {
                     mahasiswa: rootState.userModule.id,
-                    penguji: rootState.userModule.penguji,
                     jawaban: state.jawab,
                     waktuMulai: state.waktuMulai,
                     waktuSelesai: new Date().getTime()

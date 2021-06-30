@@ -9,6 +9,10 @@
       class="elevation-4"
       show-group-by
     >
+      <template v-slot:[`item.index`]="{ index }">
+        {{ index + 1 }}
+      </template>
+
       <template v-slot:[`item.hasil`]="{ item }">
         <v-chip small :color="getHasil(item) ? 'green' : 'red'" dark>
           {{ getHasil(item) ? "BENAR" : "SALAH" }}

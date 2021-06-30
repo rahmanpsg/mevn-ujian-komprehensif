@@ -5,9 +5,9 @@ const schema = mongoose.Schema({
     pertanyaan: String,
     jawaban: Object,
     benar: String,
-    penguji: {
+    matakuliah: {
         type: mongoose.Schema.Types.ObjectId,
-        ref: "User"
+        ref: "Matakuliah"
     }
 })
 

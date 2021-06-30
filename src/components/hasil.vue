@@ -17,6 +17,7 @@
             <v-col cols="3"> Nim</v-col>
             <v-col cols="1"> :</v-col>
             <v-col cols="8"> {{ nim }} </v-col>
+
             <!--  -->
             <v-col cols="3"> Waktu Ujian</v-col>
             <v-col cols="1"> :</v-col>
@@ -33,15 +34,23 @@
                 {{ nilai }}
               </v-chip>
             </v-col>
+            <v-col cols="12">
+              <v-btn @click="dialog = !dialog"
+                ><v-icon left color="white">mdi-printer</v-icon>Cetak Berita
+                Acara</v-btn
+              >
+            </v-col>
           </v-row>
         </v-card-text>
       </v-col>
+      <dialog-berita-acara :dialog="dialog" @closeDialog="dialog = false" />
     </v-row>
   </v-card>
 </template>
 
 <script>
 import moment from "moment";
+import DialogBeritaAcara from "@/components/dialogBeritaAcara.vue";
 
 export default {
   props: {
@@ -51,6 +60,12 @@ export default {
     waktuMulai: String,
     waktuSelesai: String,
     nilai: Number,
+  },
+  components: {
+    DialogBeritaAcara,
+  },
+  data() {
+    return { dialog: false };
   },
   computed: {
     getColors() {

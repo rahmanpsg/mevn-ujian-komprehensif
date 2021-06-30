@@ -11,9 +11,9 @@
           @hapus="showDialogHapus"
           :headers="headers"
           :items="items"
-          itemKey="no"
-          sortBy="no"
+          itemKey="_id"
           :loading="loading"
+          :getNamaMatakuliah="getNamaMatakuliah"
           expanded
         >
           <template v-slot:modal>
@@ -25,24 +25,18 @@
             >
               <template v-slot:form>
                 <v-form ref="form" v-model="valid" lazy-validation>
-                  <v-row>
-                    <v-col cols="12" sm="2" md="2">
-                      <v-text-field
-                        v-model="editedItem.no"
-                        type="number"
-                        label="No*"
-                        :rules="numberRules"
-                        required
-                      ></v-text-field>
-                    </v-col>
-                    <v-col cols="12" sm="10" md="10">
-                      <v-textarea
-                        v-model="editedItem.pertanyaan"
-                        label="Pertanyaan"
-                        :rules="[(v) => !!v || 'Pertanyaan tidak boleh kosong']"
-                      ></v-textarea>
-                    </v-col>
-                  </v-row>
+                  <v-autocomplete
+                    v-model="editedItem.matakuliah"
+                    :items="matakuliahs"
+                    item-text="matakuliah"
+                    item-value="_id"
+                    label="Matakuliah"
+                  ></v-autocomplete>
+                  <v-textarea
+                    v-model="editedItem.pertanyaan"
+                    label="Pertanyaan"
+                    :rules="[(v) => !!v || 'Pertanyaan tidak boleh kosong']"
+                  ></v-textarea>
                   <v-row v-for="item in formJawaban" :key="item.val">
                     <v-col cols="1">
                       <v-radio-group
@@ -98,20 +92,29 @@ export default {
     return {
       loading: true,
       headers: [
+        { text: "", value: "data-table-expand", groupable: false },
         {
-          text: "Nomor",
+          text: "#",
+          align: "start",
+          sortable: false,
+          groupable: false,
+          value: "index",
+        },
+        {
+          text: "Matakuliah",
           align: "start",
           sortable: true,
-          value: "no",
+          value: "matakuliah.matakuliah",
         },
-        { text: "Pertanyaan", value: "pertanyaan" },
+        { text: "Pertanyaan", value: "pertanyaan", groupable: false },
         {
           text: "Jawaban",
           value: "benar",
+          groupable: false,
         },
-        { text: "Aksi", value: "aksi", sortable: false },
+        { text: "Aksi", value: "aksi", sortable: false, groupable: false },
       ],
-      sortBy: "pertanyaan",
+      sortBy: "matakuliah",
       dialog: false,
       dialogDelete: false,
       editedIndex: -1,
@@ -129,11 +132,13 @@ export default {
   },
   async created() {
     await this.getAll();
+    await this.getAllMatakuliah();
     this.loading = false;
   },
   computed: {
     ...mapState({
       items: (state) => state.soalModule.soals,
+      matakuliahs: (state) => state.matakuliahModule.matakuliahs,
     }),
     formTitle() {
       return this.editedIndex === -1 ? "Tambah Data Soal" : "Edit Data Soal";
@@ -158,6 +163,19 @@ export default {
       "editSoal",
       "deleteSoal",
     ]),
+    ...mapActions("matakuliahModule", {
+      getAllMatakuliah: "getAll",
+    }),
+    getNamaMatakuliah(matakuliah) {
+      if (typeof matakuliah === "object") return matakuliah.matakuliah;
+      else {
+        const findMatakuliah = this.matakuliahs.find(
+          (v) => v._id == matakuliah
+        );
+
+        return findMatakuliah ? findMatakuliah.matakuliah : "-";
+      }
+    },
     tambah() {
       this.editedItem = JSON.parse(JSON.stringify(this.defaultItem));
       this.dialog = true;
@@ -195,6 +213,7 @@ export default {
 
       let res;
       if (this.editedIndex > -1) {
+        this.editedItem.matakuliah = this.editedItem.matakuliah._id;
         res = await this.editSoal({
           index: this.editedIndex,
           soal: { ...this.editedItem },

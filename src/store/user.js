@@ -8,8 +8,6 @@ export default {
         username: '',
         nama: '',
         nim: '', //optional jika mahasiswa
-        nbm: '', //optional jika penguji
-        penguji: '', //optional jika mahasiswa
         image: '',
         role: ''
     }),
@@ -23,8 +21,6 @@ export default {
                 state.username = data.username
                 state.nama = data.nama
                 state.nim = data.nim
-                state.nbm = data.nbm
-                state.penguji = data.penguji
                 state.role = data.role
                 if (data.role == 'admin') return
                 state.image = data.image || data.images[0]

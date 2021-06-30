@@ -40,10 +40,10 @@ router.get('/cek/:mahasiswa', async (req, res) => {
 
 // post hasil ujian mahasiswa
 router.post('/', async (req, res) => {
-    const { mahasiswa, penguji, jawaban, waktuMulai, waktuSelesai } = req.body
+    const { mahasiswa, jawaban, waktuMulai, waktuSelesai } = req.body
 
     // ambil data soal
-    const soals = await Soal.find({ penguji }).select('no benar').sort('no')
+    const soals = await Soal.find().select('benar')
 
     // periksa jawaban
     let benar = 0
@@ -58,8 +58,8 @@ router.post('/', async (req, res) => {
     })
 
     // hitung nilai
-    let totalSoal = soals.length
-    const nilai = (benar / totalSoal) * 100
+    let totalSoal = Object.keys(jawaban).length
+    const nilai = ((benar / totalSoal) * 100).toFixed(2)
 
     // simpan data hasil
     const hasil = new Hasil({

@@ -15,7 +15,6 @@
           sortBy="nim"
           :loading="loading"
           :dialogDelete="dialogDelete"
-          :getNamaPenguji="getNamaPenguji"
         >
           <template v-slot:modal>
             <DialogForm
@@ -60,18 +59,6 @@
                         :rules="[(v) => !!v || 'Password tidak boleh kosong']"
                         required
                       ></v-text-field>
-                    </v-col>
-                    <v-col cols="12" sm="12" md="12">
-                      <v-select
-                        label="Penguji*"
-                        v-model="editedItem.penguji"
-                        :items="listPenguji"
-                        item-text="nama"
-                        item-value="_id"
-                        dense
-                        :rules="[(v) => !!v || 'Penguji belum dipilih']"
-                        required
-                      ></v-select>
                     </v-col>
                     <v-col cols="12" sm="2" md="2">
                       <v-btn
@@ -167,7 +154,6 @@ export default {
         { text: "Nim", value: "nim" },
         { text: "Nama", value: "nama" },
         { text: "Username", value: "username" },
-        { text: "Penguji", value: "penguji" },
         { text: "Aksi", value: "aksi", sortable: false },
       ],
       dialog: false,
@@ -182,14 +168,12 @@ export default {
     };
   },
   async created() {
-    await this.getListPenguji();
     await this.getAll();
     this.loading = false;
   },
   computed: {
     ...mapState("mahasiswaModule", {
       items: "mahasiswas",
-      listPenguji: "listPenguji",
     }),
     formTitle() {
       return this.editedIndex === -1
@@ -226,18 +210,10 @@ export default {
   methods: {
     ...mapActions("mahasiswaModule", [
       "getAll",
-      "getListPenguji",
       "addMahasiswa",
       "editMahasiswa",
       "deleteMahasiswa",
     ]),
-    getNamaPenguji(penguji) {
-      if (!penguji || !this.listPenguji.length) return "-";
-
-      const findPenguji = this.listPenguji.find((v) => v._id == penguji);
-
-      return findPenguji ? findPenguji.nama : "-";
-    },
     onFileChanged(e) {
       const files = e.target.files;
       const total = this.editedItem.images.length + files.length;

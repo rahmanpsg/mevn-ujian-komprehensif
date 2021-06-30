@@ -46,28 +46,13 @@ const routes = [
         name: 'adminMahasiswa',
         component: () => import("../views/admin/mahasiswa.vue")
       }, {
-        path: 'penguji',
-        name: 'adminPenguji',
-        component: () => import("../views/admin/penguji.vue")
+        path: 'matakuliah',
+        name: 'adminMatakuliah',
+        component: () => import("../views/admin/matakuliah.vue")
       }, {
         path: 'hasil',
         name: 'adminHasil',
         component: () => import("../views/admin/hasil.vue")
-      }
-    ]
-  }, {
-    path: '/penguji',
-    component: () => import('../views/penguji/index.vue'),
-    beforeEnter: isLogin,
-    children: [
-      {
-        path: '/',
-        name: 'penguji',
-        component: () => import('../views/penguji/hasil.vue')
-      }, {
-        path: 'soal',
-        name: 'pengujiSoal',
-        component: () => import('../views/penguji/soal.vue')
       }
     ]
   }, {

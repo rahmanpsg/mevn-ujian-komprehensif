@@ -20,21 +20,6 @@
         <v-card elevation="5">
           <v-row class="no-gutters">
             <div class="col-auto">
-              <div class="primary fill-height d-flex pa-2">
-                <v-icon color="white"> mdi-account-multiple </v-icon>
-              </div>
-            </div>
-            <div class="col pa-3 py-4 primary--text">
-              <h5 class="text-truncate text-uppercase">Total Penguji</h5>
-              <h1>{{ totalPenguji }}</h1>
-            </div>
-          </v-row>
-        </v-card>
-      </v-col>
-      <v-col cols="12" sm="12" md="12" class="pb-2">
-        <v-card elevation="5">
-          <v-row class="no-gutters">
-            <div class="col-auto">
               <div class="success fill-height d-flex pa-2">
                 <v-icon color="white"> mdi-book </v-icon>
               </div>

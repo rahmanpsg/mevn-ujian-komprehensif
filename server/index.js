@@ -17,8 +17,10 @@ const loginRoute = require('./routes/login')
 const faceRoute = require('./routes/face')
 const soalRoute = require('./routes/soal')
 const mahasiswaRoute = require('./routes/mahasiswa')
+const matakuliahRoute = require('./routes/matakuliah')
 const pengujiRoute = require('./routes/penguji')
 const hasilRoute = require('./routes/hasil')
+const beritaAcaraRoute = require('./routes/beritaAcara')
 
 mongoose
     .connect(`mongodb://localhost:27017/vue_uk`, {
@@ -44,8 +46,10 @@ mongoose
         app.use('/face', faceRoute)
         app.use('/soal', soalRoute)
         app.use('/mahasiswa', mahasiswaRoute)
+        app.use('/matakuliah', matakuliahRoute)
         app.use('/penguji', pengujiRoute)
         app.use('/hasil', hasilRoute)
+        app.use('/berita_acara', beritaAcaraRoute)
 
         app.get('/totalData', async (req, res) => {
             const totalMahasiswa = await userModel.countDocuments({ role: 'mahasiswa' })
