@@ -1,100 +1,124 @@
-const express = require('express')
-const User = require('../models/User')
-const Soal = require('../models/Soal')
-const Hasil = require('../models/Hasil')
-const router = express.Router()
+const express = require("express");
+const User = require("../models/User");
+const Soal = require("../models/Soal");
+const Hasil = require("../models/Hasil");
+const router = express.Router();
 
 // ambil semua data hasil mahasiswa
-router.get('/', async (req, res) => {
-    let mahasiswas = await User.find({ role: 'mahasiswa' }, 'nama nim images')
-        .populate({ path: 'hasil', select: 'nilai jawaban', populate: { path: 'jawaban.soal', select: 'no pertanyaan benar' } })
+router.get("/", async (req, res) => {
+  let mahasiswas = await User.find(
+    { role: "mahasiswa" },
+    "nama nim images"
+  ).populate({
+    path: "hasil",
+    select: "nilai jawaban",
+    populate: {
+      path: "jawaban.soal",
+      select: "matakuliah pertanyaan benar",
+      populate: { path: "matakuliah", select: "matakuliah" },
+    },
+  });
 
-    // map Image
-    mahasiswas = mapImage(mahasiswas)
+  // map Image
+  mahasiswas = mapImage(mahasiswas);
 
-    return res.send(mahasiswas)
-})
+  return res.send(mahasiswas);
+});
 
 // ambil semua data hasil mahasiswa by penguji
-router.get('/:penguji', async (req, res) => {
-    const penguji = req.params.penguji
+router.get("/:penguji", async (req, res) => {
+  const penguji = req.params.penguji;
 
-    let mahasiswas = await User.find({ role: 'mahasiswa', penguji }, 'nama nim images')
-        .populate({ path: 'hasil', select: 'nilai jawaban', populate: { path: 'jawaban.soal', select: 'no pertanyaan benar' } })
+  let mahasiswas = await User.find(
+    { role: "mahasiswa", penguji },
+    "nama nim images"
+  ).populate({
+    path: "hasil",
+    select: "nilai jawaban",
+    populate: { path: "jawaban.soal", select: "pertanyaan benar" },
+  });
 
-    // map Image
-    mahasiswas = mapImage(mahasiswas)
+  // map Image
+  mahasiswas = mapImage(mahasiswas);
 
-    return res.send(mahasiswas)
-})
+  return res.send(mahasiswas);
+});
 
 // cek data ujian mahasiswa
-router.get('/cek/:mahasiswa', async (req, res) => {
-    const mahasiswa = req.params.mahasiswa
+router.get("/cek/:mahasiswa", async (req, res) => {
+  const mahasiswa = req.params.mahasiswa;
 
-    let hasil = await Hasil.findOne({ mahasiswa }, 'nilai waktuMulai waktuSelesai')
+  let hasil = await Hasil.findOne(
+    { mahasiswa },
+    "nilai waktuMulai waktuSelesai"
+  );
 
-
-    return res.status(200).send({ data: hasil })
-})
+  return res.status(200).send({ data: hasil });
+});
 
 // post hasil ujian mahasiswa
-router.post('/', async (req, res) => {
-    const { mahasiswa, jawaban, waktuMulai, waktuSelesai } = req.body
+router.post("/", async (req, res) => {
+  const { mahasiswa, soal, jawaban, waktuMulai, waktuSelesai } = req.body;
 
-    // ambil data soal
-    const soals = await Soal.find().select('benar')
+  // ambil data soal
+  const soals = await Soal.find({ _id: { $in: soal } }).select("benar");
 
-    // periksa jawaban
-    let benar = 0
-    const hasilJawaban = soals.map(v => {
-        if (jawaban[v._id] == v.benar) {
-            benar++
-        }
-        return {
-            soal: v._id,
-            jawab: jawaban[v._id]
-        }
-    })
+  // periksa jawaban
+  let benar = 0;
+  const hasilJawaban = soals.map((v) => {
+    if (v.id != jawaban)
+      if (jawaban[v._id] == v.benar) {
+        benar++;
+      }
+    return {
+      soal: v._id,
+      jawab: jawaban[v._id],
+    };
+  });
 
-    // hitung nilai
-    let totalSoal = Object.keys(jawaban).length
-    const nilai = ((benar / totalSoal) * 100).toFixed(2)
+  // hitung nilai
+  let totalSoal = soal.length;
+  const nilai = ((benar / totalSoal) * 100).toFixed(2);
 
-    // simpan data hasil
-    const hasil = new Hasil({
-        mahasiswa,
-        jawaban: hasilJawaban,
-        waktuMulai,
-        waktuSelesai,
-        nilai
-    })
+  // simpan data hasil
+  const hasil = new Hasil({
+    mahasiswa,
+    jawaban: hasilJawaban,
+    waktuMulai,
+    waktuSelesai,
+    nilai,
+  });
 
-    hasil.save((err, doc) => {
+  hasil.save((err, doc) => {
+    if (err) return res.status(500).send({ message: err });
+
+    // save id hasil di model mahasiswa
+    User.findByIdAndUpdate(
+      { _id: mahasiswa },
+      { hasil: doc._id },
+      { useFindAndModify: false },
+      (err) => {
         if (err) return res.status(500).send({ message: err });
 
-        // save id hasil di model mahasiswa
-        User.findByIdAndUpdate({ _id: mahasiswa }, { hasil: doc._id }, { useFindAndModify: false }, err => {
-            if (err) return res.status(500).send({ message: err });
-
-            res.status(200).send({
-                message: 'Ujian berhasil disimpan',
-                waktuMulai: doc.waktuMulai,
-                waktuSelesai: doc.waktuSelesai,
-                nilai
-            })
+        res.status(200).send({
+          message: "Ujian berhasil disimpan",
+          waktuMulai: doc.waktuMulai,
+          waktuSelesai: doc.waktuSelesai,
+          nilai,
         });
-    })
-})
+      }
+    );
+  });
+});
 
 function mapImage(json) {
-    return json.map(v => {
-        v = v.toJSON()
+  return json.map((v) => {
+    v = v.toJSON();
 
-        v.image = v.images[0]
-        delete (v.images)
-        return v
-    })
+    v.image = v.images[0];
+    delete v.images;
+    return v;
+  });
 }
 
-module.exports = router
+module.exports = router;

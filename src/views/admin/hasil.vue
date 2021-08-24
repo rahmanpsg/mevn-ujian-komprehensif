@@ -72,7 +72,11 @@ export default {
         groupable: false,
         value: "index",
       },
-      { text: "Matakuliah", value: "soal.pertanyaan", groupable: false },
+      {
+        text: "Matakuliah",
+        value: "soal.matakuliah.matakuliah",
+        groupable: false,
+      },
       { text: "Pertanyaan", value: "soal.pertanyaan", groupable: false },
       { text: "Jawab", value: "jawab", groupable: false },
       { text: "Hasil", value: "hasil", align: "right" },

@@ -8,12 +8,7 @@
 
         <v-card-text>
           <v-container style="height: 500px">
-            <iframe
-              src="https://192.168.8.101:5000/berita_acara"
-              frameborder="0"
-              height="100%"
-              width="100%"
-            >
+            <iframe :src="cetakUrl" frameborder="0" height="100%" width="100%">
             </iframe>
           </v-container>
         </v-card-text>
@@ -32,9 +27,16 @@
 </template>
 
 <script>
+import axios from "axios";
+
 export default {
   props: {
     dialog: Boolean,
+  },
+  computed: {
+    cetakUrl() {
+      return axios.defaults.baseURL || "" + "berita_acara";
+    },
   },
 };
 </script>

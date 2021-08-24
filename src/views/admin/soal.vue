@@ -131,8 +131,8 @@ export default {
     };
   },
   async created() {
-    await this.getAll();
     await this.getAllMatakuliah();
+    await this.getAll();
     this.loading = false;
   },
   computed: {
@@ -207,13 +207,13 @@ export default {
       this.closeDialog();
     },
     async simpan() {
+      console.log(this.editedItem);
       await this.$refs.form.validate();
 
       if (!this.valid) return;
 
       let res;
       if (this.editedIndex > -1) {
-        this.editedItem.matakuliah = this.editedItem.matakuliah._id;
         res = await this.editSoal({
           index: this.editedIndex,
           soal: { ...this.editedItem },
